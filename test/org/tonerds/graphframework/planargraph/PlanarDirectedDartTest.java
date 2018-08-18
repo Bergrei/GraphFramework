@@ -12,63 +12,63 @@ class PlanarDirectedDartTest {
 	PlanarDirectedDart dart = new DefaultPlanarDirectedDart(from, to, face);
 	
 	@Test
-	void containsFrom() {
+	void containsFromTest() {
 		assertTrue(dart.containsNode(from));
 	}
 
 	@Test
-	void containsTo() {
+	void containsToTest() {
 		assertTrue(dart.containsNode(to));
 	}
 
 	@Test
-	void notContainsOtherNode() {
+	void notContainsOtherNodeTest() {
 		assertFalse(dart.containsNode(null));
 	}
 
 	@Test
-	void nextNodeFromIsTo() {
+	void nextNodeFromIsToTest() {
 		assertEquals(to, dart.getNextNode(from));
 	}
 
 	@Test
-	void nextNodeToIsNull() {
+	void nextNodeToIsNullTest() {
 		assertNull(dart.getNextNode(to));
 	}
 	
 	@Test
-	void containsFace() {
+	void containsFaceTest() {
 		assertTrue(dart.containsFace(face));
 	}
 	
 	@Test
-	void notContainsOtherFace() {
+	void notContainsOtherFaceTest() {
 		assertFalse(dart.containsFace(null));
 	}
 
 	@Test
-	void getFaceIsFace() {
+	void getFaceIsFaceTest() {
 		assertEquals(face, dart.getFace());
 	}
 
 	@Test
-	void getFaceFromIsFace() {
+	void getFaceFromIsFaceTest() {
 		assertEquals(face, dart.getFace(from));
 	}
 
 	@Test
-	void getFaceOtherIsNull() {
+	void getFaceOtherIsNullTest() {
 		assertNull(dart.getFace(to));
 	}
 
 	@Test
-	void hasSameNodesTrue() {
+	void hasSameNodesTrueTest() {
 		assertTrue(dart.hasSameNodes(new DefaultPlanarDirectedDart(from, to, face)));
 		assertTrue(dart.hasSameNodes(new DefaultPlanarDirectedDart(to, from, face)));
 	}
 	
 	@Test
-	void hasSameNodesFalse() {
+	void hasSameNodesFalseTest() {
 		assertFalse(dart.hasSameNodes(new DefaultPlanarDirectedDart(from, null, face)));
 		assertFalse(dart.hasSameNodes(new DefaultPlanarDirectedDart(null, from, face)));
 	}
