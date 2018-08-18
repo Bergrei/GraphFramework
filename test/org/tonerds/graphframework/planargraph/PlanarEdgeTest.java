@@ -12,10 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
 class PlanarEdgeTest {
 
 	static PlanarNode firstNode = makePlanarNode();
@@ -33,13 +30,13 @@ class PlanarEdgeTest {
 	}
 
 	@Test
-	void throwOnOneNodeEdge() {
+	void throwOnOneNodeEdgeTest() {
 		assertThrows(UnsupportedOperationException.class, () -> makeDartEdge(firstNode, firstFace, firstNode, secondFace));
 	}
 
 	@ParameterizedTest
 	@MethodSource("edgeProvider")
-	void edgeContainsNode(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
+	void edgeContainsNodeTest(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
 		assertTrue(normalEdge.containsNode(secondNode));
 		assertTrue(normalEdge.containsNode(firstNode));
 		assertTrue(oneFaceEdge.containsNode(firstNode));
@@ -57,7 +54,7 @@ class PlanarEdgeTest {
 
 	@ParameterizedTest
 	@MethodSource("edgeProvider")
-	void edgeContainsFaces(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
+	void edgeContainsFacesTest(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
 		assertTrue(normalEdge.containsFace(firstFace));
 		assertTrue(normalEdge.containsFace(secondFace));
 		assertTrue(oneFaceEdge.containsFace(firstFace));
@@ -66,7 +63,7 @@ class PlanarEdgeTest {
 
 	@ParameterizedTest
 	@MethodSource("edgeProvider")
-	void edgeNextFaceFromFace(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
+	void edgeNextFaceFromFaceTest(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
 		assertEquals(firstFace, normalEdge.getNextFace(secondFace));
 		assertEquals(secondFace, normalEdge.getNextFace(firstFace));
 		assertEquals(firstFace, oneFaceEdge.getNextFace(firstFace));
@@ -75,7 +72,7 @@ class PlanarEdgeTest {
 	
 	@ParameterizedTest
 	@MethodSource("edgeProvider")
-	void edgeFaceFromNodes(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
+	void edgeFaceFromNodesTest(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
 		assertEquals(secondFace, normalEdge.getFace(firstNode));
 		assertEquals(firstFace, normalEdge.getFace(secondNode));
 		assertEquals(firstFace, oneFaceEdge.getFace(firstNode));
