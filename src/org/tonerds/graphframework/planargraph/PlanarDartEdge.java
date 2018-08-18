@@ -11,8 +11,8 @@ public final class PlanarDartEdge implements PlanarEdge{
 	
 	public PlanarDartEdge(PlanarNode top, PlanarFace right, PlanarNode bottom, PlanarFace left) {
 		this(
-			new DefaultPlanarDirectedDart(top, bottom, right), 
-			new DefaultPlanarDirectedDart(bottom, top, left) ); 
+			new DefaultPlanarDirectedDart(top, bottom, left), 
+			new DefaultPlanarDirectedDart(bottom, top, right) ); 
 	}
 	
 
