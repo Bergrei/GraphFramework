@@ -8,7 +8,7 @@ public interface PlanarFace{
 	
 	public boolean removeNode(PlanarNode node);
 	
-	public void addEdge(PlanarNode fromnode, PlanarNode tonode, PlanarEdge edge);
+	public void addEdge(PlanarEdge edge);
 	
 	public boolean containsEdge(PlanarEdge edge);
 	

@@ -24,7 +24,7 @@ public class DefaultPlanarFace implements PlanarFace {
 	}
 
 	@Override
-	public void addEdge(PlanarNode fromnode, PlanarNode tonode, PlanarEdge edge) {
+	public void addEdge(PlanarEdge edge) {
 		edges.add(edge);
 	}
 
