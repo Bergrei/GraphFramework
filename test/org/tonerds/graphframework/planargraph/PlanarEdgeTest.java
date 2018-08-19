@@ -15,23 +15,23 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class PlanarEdgeTest {
 
-	static PlanarNode firstNode = makePlanarNode();
-	static PlanarNode secondNode = makePlanarNode();
-	static PlanarFace firstFace = makePlanarFace();
-	static PlanarFace secondFace = makePlanarFace();
+	static PlanarNode firstNode = PlanarTestFactory.makeNode();
+	static PlanarNode secondNode = PlanarTestFactory.makeNode();
+	static PlanarFace firstFace = PlanarTestFactory.makeFace();
+	static PlanarFace secondFace = PlanarTestFactory.makeFace();
 	
 	public static Stream<Arguments> edgeProvider(){
 		return Stream.of(
 				Arguments.of(
-					makeDartEdge(firstNode, firstFace, secondNode, secondFace),
-					makeDartEdge(firstNode, firstFace, secondNode, firstFace)
+					PlanarTestFactory.makeEdge(firstNode, firstFace, secondNode, secondFace),
+					PlanarTestFactory.makeEdge(firstNode, firstFace, secondNode, firstFace)
 					)
 				);
 	}
 
 	@Test
 	void throwOnOneNodeEdgeTest() {
-		assertThrows(UnsupportedOperationException.class, () -> makeDartEdge(firstNode, firstFace, firstNode, secondFace));
+		assertThrows(UnsupportedOperationException.class, () -> PlanarTestFactory.makeEdge(firstNode, firstFace, firstNode, secondFace));
 	}
 
 	@ParameterizedTest
@@ -39,8 +39,10 @@ class PlanarEdgeTest {
 	void edgeContainsNodeTest(PlanarEdge normalEdge, PlanarEdge oneFaceEdge) {
 		assertTrue(normalEdge.containsNode(secondNode));
 		assertTrue(normalEdge.containsNode(firstNode));
+		assertFalse(normalEdge.containsNode(PlanarTestFactory.makeNode()));
 		assertTrue(oneFaceEdge.containsNode(firstNode));
 		assertTrue(oneFaceEdge.containsNode(secondNode));
+		assertFalse(oneFaceEdge.containsNode(PlanarTestFactory.makeNode()));
 	}
 
 	@ParameterizedTest
@@ -79,15 +81,4 @@ class PlanarEdgeTest {
 		assertEquals(firstFace, oneFaceEdge.getFace(secondNode));
 	}
 
-	private static PlanarDartEdge makeDartEdge(PlanarNode top, PlanarFace right, PlanarNode bottom, PlanarFace left) {
-		return new PlanarDartEdge(top, right, bottom, left);
-	}
-	
-	private static PlanarFace makePlanarFace() {
-		return new DefaultPlanarFace();
-	}
-	
-	private static PlanarNode makePlanarNode() {
-		return new DefaultPlanarNode();
-	}
 }

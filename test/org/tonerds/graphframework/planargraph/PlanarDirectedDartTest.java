@@ -6,10 +6,16 @@ import org.junit.jupiter.api.Test;
 
 class PlanarDirectedDartTest {
 
-	PlanarNode from = new DefaultPlanarNode();
-	PlanarNode to = new DefaultPlanarNode();
-	PlanarFace face = new DefaultPlanarFace();
-	PlanarDirectedDart dart = new DefaultPlanarDirectedDart(from, to, face);
+	PlanarNode from = PlanarTestFactory.makeNode();
+	PlanarNode to = PlanarTestFactory.makeNode();
+	PlanarFace face = PlanarTestFactory.makeFace();
+	PlanarDirectedDart dart = PlanarTestFactory.makeDart(from, to, face);
+	
+	@Test
+	void sameNodeThrowsExceptionTest() {
+		assertThrows(UnsupportedOperationException.class, 
+				() -> PlanarTestFactory.makeDart(from, from, face));
+	}
 	
 	@Test
 	void containsFromTest() {
@@ -63,13 +69,17 @@ class PlanarDirectedDartTest {
 
 	@Test
 	void hasSameNodesTrueTest() {
-		assertTrue(dart.hasSameNodes(new DefaultPlanarDirectedDart(from, to, face)));
-		assertTrue(dart.hasSameNodes(new DefaultPlanarDirectedDart(to, from, face)));
+		assertTrue(dart.hasSameNodes(
+				PlanarTestFactory.makeDart(from, to, face)));
+		assertTrue(dart.hasSameNodes(
+				PlanarTestFactory.makeDart(to, from, face)));
 	}
 	
 	@Test
 	void hasSameNodesFalseTest() {
 		assertFalse(dart.hasSameNodes(new DefaultPlanarDirectedDart(from, null, face)));
 		assertFalse(dart.hasSameNodes(new DefaultPlanarDirectedDart(null, from, face)));
+		assertFalse(dart.hasSameNodes(
+				PlanarTestFactory.makeDart(new DefaultPlanarNode(), new DefaultPlanarNode(), face)));
 	}
 }
