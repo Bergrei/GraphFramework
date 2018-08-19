@@ -28,7 +28,7 @@ public class DefaultPlanarNode implements PlanarNode {
 	public PlanarEdge nextEdge(PlanarEdge edge) {
 		int index = edges.indexOf(edge);
 		if (index != -1) {
-			edges.get(ModuloArithmetcs.add(index, 1, edges.size()));
+			return edges.get(ModuloArithmetcs.add(index, 1, edges.size()));
 		}
 		return null;
 	}
