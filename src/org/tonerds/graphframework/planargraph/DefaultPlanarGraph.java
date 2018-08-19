@@ -27,8 +27,11 @@ public class DefaultPlanarGraph implements PlanarGraph {
 
 	@Override
 	public void addEdgeToFaceBetweenNodes(PlanarFace face, PlanarNode fromnode, PlanarNode tonode, PlanarEdge edge) {
-		face.addEdge(fromnode, tonode, edge);
-		edges.add(edge);
+		if (face.containsNode(fromnode) && face.containsNode(tonode)) {
+			//split to faces
+			face.addEdge(edge);
+			edges.add(edge);
+		}
 		throw new RuntimeException("Set the edge parameters before adding to set");
 	}
 
