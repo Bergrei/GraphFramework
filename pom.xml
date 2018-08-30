@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.2nerds</groupId>
   <artifactId>GraphFramework</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>Graph Framework</name>
   <description>A framework that provides basic interfaces and implemetation for working with graphs</description>
   <build>
