@@ -49,5 +49,23 @@ public class DefaultPlanarDirectedDart implements PlanarDirectedDart {
 		return dart.containsNode(top) && dart.containsNode(bottom);
 	}
 
-	
+	@Override
+	public boolean equals(PlanarDirectedDart dart) {
+		return (top == dart.getTop() && bottom == dart.getBottom() && right == dart.getRight());
+	}
+
+	@Override
+	public PlanarNode getTop() {
+		return top;
+	}
+
+	@Override
+	public PlanarNode getBottom() {
+		return bottom;
+	}
+
+	@Override
+	public PlanarFace getRight() {
+		return right;
+	}
 }

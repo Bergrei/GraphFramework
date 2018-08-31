@@ -1,6 +1,7 @@
 package org.tonerds.graphframework.planargraph;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.tonerds.utilities.ModuloArithmetcs;
@@ -41,6 +42,11 @@ public class DefaultPlanarNode implements PlanarNode {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public Collection<PlanarEdge> getEdges() {
+		return new ArrayList<>(edges);
 	}
 
 }

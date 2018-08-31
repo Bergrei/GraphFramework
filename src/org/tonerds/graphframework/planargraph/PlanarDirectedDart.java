@@ -13,4 +13,10 @@ public interface PlanarDirectedDart {
 	public PlanarFace getFace(PlanarNode from);
 	
 	public boolean hasSameNodes(PlanarDirectedDart dart);
+	
+	public boolean equals(PlanarDirectedDart dart);
+	
+	PlanarNode getTop();
+	PlanarNode getBottom();
+	PlanarFace getRight();
 }

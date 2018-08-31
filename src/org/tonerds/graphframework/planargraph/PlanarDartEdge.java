@@ -1,5 +1,7 @@
 package org.tonerds.graphframework.planargraph;
 
+import org.tonerds.utilities.Pair;
+
 public final class PlanarDartEdge implements PlanarEdge{
 	
 	PlanarDirectedDart first, second;
@@ -55,6 +57,32 @@ public final class PlanarDartEdge implements PlanarEdge{
 		if (ret == null)
 			ret = second.getFace(from);
 		return ret;
+	}
+
+	@Override
+	public void replaceFace(PlanarNode top, PlanarNode bottom, PlanarFace rightfrom, PlanarFace rightto) {
+		PlanarDirectedDart olddart = new DefaultPlanarDirectedDart(bottom, top, rightfrom);
+		PlanarDirectedDart newdart = new DefaultPlanarDirectedDart(bottom, top, rightto);
+		if (first.equals(olddart)) {
+			rightfrom.removeDart(first);
+			first = newdart;
+		}
+		if (second.equals(olddart)) {
+			rightfrom.removeDart(second);
+			second = newdart;
+		}
+		rightto.addEdge(this);
+			
+	}
+
+	@Override
+	public Pair<PlanarDirectedDart, PlanarDirectedDart> getDarts() {
+		return new Pair<>(first, second);
+	}
+
+	@Override
+	public Pair<PlanarNode, PlanarNode> getNodes() {
+		return new Pair<>(first.getBottom(), first.getTop());
 	}
 
 }

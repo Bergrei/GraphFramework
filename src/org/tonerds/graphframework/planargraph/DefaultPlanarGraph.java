@@ -1,63 +1,113 @@
 package org.tonerds.graphframework.planargraph;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.tonerds.graphframework.graph.Graph;
+import org.tonerds.graphframework.planargraph.algorithm.BreadthFirstSearch;
 
-public class DefaultPlanarGraph implements PlanarGraph {
+public class DefaultPlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge, Face extends PlanarFace> implements PlanarGraph<Node, Edge, Face> {
 	
-	private PlanarGraphFactory factory;
+	private PlanarGraphFactory<Node, Edge, Face> factory;
 	
-	private Set<PlanarNode> nodes = new HashSet<>();
-	private Set<PlanarEdge> edges = new HashSet<>();
-	private Set<PlanarFace> faces = new HashSet<>();
+	private Set<Node> nodes = new HashSet<>();
+	private Set<Edge> edges = new HashSet<>();
+	private Set<Face> faces = new HashSet<>();
 	
+	private Face outerface;
 	
-	public DefaultPlanarGraph(PlanarGraphFactory factory) {
+	public DefaultPlanarGraph(PlanarGraphFactory<Node, Edge, Face> factory) {
 		this.factory = factory;
-		faces.add(factory.makePlanarFace());
+		this.outerface = factory.makeFace();
+		faces.add(this.outerface);
+		
 	}
 	
 	@Override
-	public void addNodeToFace(PlanarFace face, PlanarNode node) {
+	public Node addNodeToFace(PlanarFace face) {
+		Node node = factory.makeNode();
 		face.addNode(node);
 		nodes.add(node);
+		return node;
 	}
 
 	@Override
-	public void addEdgeToFaceBetweenNodes(PlanarFace face, PlanarNode fromnode, PlanarNode tonode, PlanarEdge edge) {
+	public Edge addEdgeToFaceBetweenNodes(Face face, Node fromnode, Node tonode) {
 		if (face.containsNode(fromnode) && face.containsNode(tonode)) {
-			//split to faces
-			face.addEdge(edge);
+			Edge edge;
+			if (isSplitting(fromnode, tonode)) {
+				edge = splitFace(face, fromnode, tonode);
+			}
+			else {
+				edge = factory.makeEdge(fromnode, face, tonode, face);
+				face.addEdge(edge);
+			}
 			edges.add(edge);
+			return edge;
 		}
-		throw new RuntimeException("Set the edge parameters before adding to set");
+		else {
+			throw new RuntimeException("At least one of the nodes is not on the face");
+		}
+	}
+
+	private boolean isSplitting(Node fromnode, Node tonode) {
+		return BreadthFirstSearch.existsPath(fromnode, tonode);
+	}
+
+	private Edge splitFace(Face face, Node fromnode, Node tonode) {
+		PlanarNode node = fromnode;
+		Face newface = factory.makeFace(); 
+		while (node != tonode) {
+			PlanarEdge edge = face.getEdge(node);
+			PlanarNode nextnode = edge.getNextNode(node);
+			edge.replaceFace(nextnode, node, face, newface);
+			node = nextnode;
+		}
+		Edge newedge = factory.makeEdge(fromnode, tonode, newface, face);
+		return newedge;
 	}
 
 	@Override
-	public void removeNode(PlanarNode node) {
+	public void removeNode(Node node) {
 		for (PlanarFace face : faces) {
 			face.removeNode(node);
 		}
 	}
 
 	@Override
-	public void removeEdge(PlanarEdge edge) {
-		for (PlanarFace face : faces) {
+	public void removeEdge(Edge edge) {
+		for (Face face : faces) {
 			face.removeEdge(edge);
 		}
 	}
 
 	@Override
-	public PlanarNode getNextNode(PlanarFace face, PlanarNode node) {
-		return node.nextNode(face);
+	public Node getNextNode(Face face, Node node) {
+		return (Node) node.nextNode(face);
 	}
 
 	@Override
 	public Graph extractGraph() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet!");
 	}
 
+	@Override
+	public Face getOuterFace() {
+		return outerface;
+		}
+
+	@Override
+	public Collection<Face> getFaces() {
+		return new HashSet<Face>(faces);
+	}
+
+	@Override
+	public Collection<Face> getFacesWithoutOuterFace() {
+		Collection<Face> retfaces = new HashSet<Face>(faces);
+		retfaces.remove(outerface);
+		return retfaces;
+	}
+
+	
 }

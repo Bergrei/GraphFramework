@@ -10,9 +10,9 @@ public interface PlanarFace{
 	
 	public void addEdge(PlanarEdge edge);
 	
-	public boolean containsEdge(PlanarEdge edge);
+	public boolean containsDart(PlanarDirectedDart dart);
 	
-	public boolean removeEdge(PlanarEdge edge);
+	public boolean removeDart(PlanarDirectedDart dart);
 	
-	public PlanarEdge getEdge(PlanarNode fromNode);
+	public PlanarDirectedDart getNextDart(PlanarDirectedDart dart);
 }
