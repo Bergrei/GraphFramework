@@ -1,11 +1,15 @@
 package org.tonerds.graphframework.planargraph;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.tonerds.graphframework.graph.Graph;
 import org.tonerds.graphframework.planargraph.algorithm.BreadthFirstSearch;
+import org.tonerds.utilities.ModuloArithmetcs;
+import org.tonerds.utilities.Pair;
 
 public class DefaultPlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge, Face extends PlanarFace> implements PlanarGraph<Node, Edge, Face> {
 	
@@ -14,6 +18,8 @@ public class DefaultPlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge
 	private Set<Node> nodes = new HashSet<>();
 	private Set<Edge> edges = new HashSet<>();
 	private Set<Face> faces = new HashSet<>();
+
+	private List<List<PlanarDirectedDart>> circles = new ArrayList<>();
 	
 	private Face outerface;
 	
@@ -51,6 +57,27 @@ public class DefaultPlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge
 		}
 	}
 
+	@Override
+	public void addEdge(PlanarEdge edge) {
+		Pair<PlanarNode, PlanarNode> edgenodes = edge.getNodes();
+		int firstcircleid = findCircle(edgenodes.first);
+		if (firstcircleid == -1) {
+			firstcircleid = circles.size();
+			circles.add(new ArrayList<>());
+		}
+		int secondcircleid = findCircle(edgenodes.second);
+		if (secondcircleid == -1) {
+			secondcircleid = circles.size();
+			circles.add(new ArrayList<>());
+		}
+		
+		if (firstcircleid != secondcircleid) {
+			mergeCirclesByEdge(firstcircleid, secondcircleid, edge);
+		}
+		else {
+			splitCircleByEdge(firstcircleid, edge);
+		}
+	}
 	private boolean isSplitting(Node fromnode, Node tonode) {
 		return BreadthFirstSearch.existsPath(fromnode, tonode);
 	}
@@ -99,15 +126,136 @@ public class DefaultPlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge
 
 	@Override
 	public Collection<Face> getFaces() {
-		return new HashSet<Face>(faces);
+		//return new HashSet<Face>(faces);
 	}
 
 	@Override
 	public Collection<Face> getFacesWithoutOuterFace() {
-		Collection<Face> retfaces = new HashSet<Face>(faces);
+		Collection<Face> retfaces = getFaces();
 		retfaces.remove(outerface);
 		return retfaces;
 	}
 
+	@Override
+	public void forEachNode(NodeAction<Node, Edge, Face> action) {
+		refreshFaces();
+		for (Node node : nodes) {
+			action.action(this, node);
+		}
+	}
+
+	@Override
+	public void forEachEdge(EdgeAction<Node, Edge, Face> action) {
+		refreshfaces();
+		for (Edge edge : edges) {
+			action.action(this, edge);
+		}
+	}
+
+	@Override
+	public void forEachFace(FaceAction<Node, Edge, Face> action) {
+		refreshFaces();
+		for (Face face : faces) {
+			action.action(this, face);
+		}
+	}
+
+	
+	@Override
+	public void addNode(PlanarNode node) {
+		nodes.add(node);
+		//circles.add(new ArrayList<>());
+	}
+
+	@Override
+	public boolean containsNode(PlanarNode node) {
+		return nodes.contains(node);
+	}
+
+	@Override
+	public boolean removeNode(PlanarNode node) {
+		return nodes.remove(node);
+	}
+
+
+
+	private void mergeCirclesByEdge(int firstcircleid, int secondcircleid, PlanarEdge edge) {
+		List<PlanarDirectedDart> firstcircle = circles.get(firstcircleid);
+		List<PlanarDirectedDart> secondcircle = circles.get(secondcircleid);
+		Pair<PlanarDirectedDart, PlanarDirectedDart> edgedarts = edge.getDarts();
+		Pair<PlanarNode, PlanarNode> edgenodes = edge.getNodes();
+		if (edgenodes.first != edgedarts.first.getBottom() && edgenodes.second != edgedarts.second.getBottom()) {
+			edgedarts = new Pair<PlanarDirectedDart, PlanarDirectedDart>(edgedarts.second, edgedarts.first);
+		}
+		
+		int firstnodeid = -1;
+		int secondnodeid = -1;
+		for (int i = 0; i < firstcircle.size(); i++) {
+			if (firstcircle.get(i).getBottom() == edgedarts.first.getBottom()) {
+				firstnodeid = i;
+			}
+			if (secondcircle.get(i).getBottom() == edgedarts.second.getBottom()) {
+				secondnodeid = i;
+			}
+		}
+		
+		List<PlanarDirectedDart> newcircle = new ArrayList<>();
+		int i = firstnodeid;
+		do {
+			newcircle.add(firstcircle.get(i));
+			i = ModuloArithmetcs.add(i, 1, firstcircle.size());
+		}
+		while(i != ModuloArithmetcs.add(firstnodeid, -1, firstcircle.size()));
+		newcircle.add(edgedarts.first);
+		i = secondnodeid;
+		do {
+			newcircle.add(secondcircle.get(i));
+			i = ModuloArithmetcs.add(i, 1, secondcircle.size());
+		}
+		while(i != ModuloArithmetcs.add(secondnodeid, -1, secondcircle.size()));
+		newcircle.add(edgedarts.second);
+		
+		circles.set(firstcircleid, newcircle);
+		circles.remove(secondcircleid);
+	}
+
+	private void splitCircleByEdge(int circleid, PlanarEdge edge) {
+		List<PlanarDirectedDart> circle = circles.get(circleid);
+		Pair<PlanarDirectedDart ,PlanarDirectedDart> edgedarts = edge.getDarts();
+		
+		int firstnodeid = -1;
+		int secondnodeid = -1;
+		for (int i = 0; i < circle.size(); i++) {
+			if (circle.get(i).getBottom() == edgedarts.first.getBottom()) {
+				firstnodeid = i;
+			}
+			if (circle.get(i).getBottom() == edgedarts.second.getBottom()) {
+				secondnodeid = i;
+			}
+		}
+		int newcircleid = circles.size();
+		circles.add(new ArrayList<>());
+		List<PlanarDirectedDart> newcircle = circles.get(newcircleid);
+		for (int i = firstnodeid; i != secondnodeid; i = ModuloArithmetcs.add(i, 1, circle.size())) {
+			newcircle.add(circle.get(i));
+		}
+		newcircle.add(edgedarts.second);
+		circle.add(firstnodeid, edgedarts.first);
+		for (PlanarDirectedDart dart : newcircle) {
+			circle.remove(dart);
+		}
+	}
+
+	private int findCircle(PlanarNode node) {
+		for (int i = 0; i < circles.size(); i++) {
+			List<PlanarDirectedDart> circle = circles.get(i);
+			for (PlanarDirectedDart dart : circle) {
+				if (dart.getBottom() == node) {
+					return i;
+				}
+			}
+		}
+		return 0;
+	}
 	
 }

@@ -19,4 +19,6 @@ public interface PlanarDirectedDart {
 	PlanarNode getTop();
 	PlanarNode getBottom();
 	PlanarFace getRight();
+	
+	void replaceFace(PlanarFace oldface, PlanarFace newface);
 }

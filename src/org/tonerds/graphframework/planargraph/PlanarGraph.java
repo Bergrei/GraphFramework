@@ -15,7 +15,9 @@ public interface PlanarGraph<Node extends PlanarNode, Edge extends PlanarEdge, F
 	public Collection<Face> getFaces();
 	public Collection<Face> getFacesWithoutOuterFace();
 	
-	public Node getNextNode(Face face, Node node);
-	
 	public Graph extractGraph();
+	
+	public void forEachNode(NodeAction<Node, Edge, Face> action);
+	public void forEachEdge(EdgeAction<Node, Edge, Face> action);
+	public void forEachFace(FaceAction<Node, Edge, Face> action);
 }
