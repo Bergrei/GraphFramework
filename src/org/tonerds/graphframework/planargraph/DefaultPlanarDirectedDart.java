@@ -1,12 +1,16 @@
 package org.tonerds.graphframework.planargraph;
 
-public class DefaultPlanarDirectedDart implements PlanarDirectedDart {
+public class DefaultPlanarDirectedDart<
+			Node extends PlanarNode<Node, Edge, Face>,
+			Edge extends PlanarEdge<Node, Edge, Face>,
+			Face extends PlanarFace<Node, Edge, Face>
+		> implements PlanarDirectedDart<Node, Edge, Face> {
 
-	private PlanarNode top;
-	private PlanarNode bottom;
-	private PlanarFace right;
+	private Node top;
+	private Node bottom;
+	private Face right;
 	
-	DefaultPlanarDirectedDart(PlanarNode bottom, PlanarNode top, PlanarFace right) throws UnsupportedOperationException {
+	DefaultPlanarDirectedDart(Node bottom, Node top, Face right) throws UnsupportedOperationException {
 		if (top == bottom) {
 			throw new UnsupportedOperationException("Loop edges are not supported");
 		}
@@ -16,56 +20,65 @@ public class DefaultPlanarDirectedDart implements PlanarDirectedDart {
 	}
 	
 	@Override
-	public boolean containsNode(PlanarNode node) {
+	public boolean containsNode(Node node) {
 		return top == node || bottom == node;
 	}
 
 	@Override
-	public PlanarNode getNextNode(PlanarNode node) {
+	public Node getNextNode(Node node) {
 		if (node == bottom)
 			return top;
 		return null;
 	}
 
 	@Override
-	public boolean containsFace(PlanarFace face) {
+	public boolean containsFace(Face face) {
 		return right == face;
 	}
 
 	@Override
-	public PlanarFace getFace() {
+	public Face getFace() {
 		return right;
 	}
 
 	@Override
-	public PlanarFace getFace(PlanarNode from) {
+	public Face getFace(Node from) {
 		if (from == bottom)
 			return right;
 		return null;
 	}
 
 	@Override
-	public boolean hasSameNodes(PlanarDirectedDart dart) {
+	public boolean hasSameNodes(PlanarDirectedDart<Node, Edge, Face> dart) {
 		return dart.containsNode(top) && dart.containsNode(bottom);
 	}
 
 	@Override
-	public boolean equals(PlanarDirectedDart dart) {
+	public boolean equals(PlanarDirectedDart<Node, Edge, Face> dart) {
 		return (top == dart.getTop() && bottom == dart.getBottom() && right == dart.getRight());
 	}
 
 	@Override
-	public PlanarNode getTop() {
+	public Node getTop() {
 		return top;
 	}
 
 	@Override
-	public PlanarNode getBottom() {
+	public Node getBottom() {
 		return bottom;
 	}
 
 	@Override
-	public PlanarFace getRight() {
+	public Face getRight() {
 		return right;
+	}
+
+	@Override
+	public boolean replaceFace(Face oldface, Face newface) {
+		if (right == oldface) {
+			right = newface;
+			return true;
+		}
+		return false;
 	}
 }

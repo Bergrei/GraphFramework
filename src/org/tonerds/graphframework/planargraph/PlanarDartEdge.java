@@ -2,31 +2,43 @@ package org.tonerds.graphframework.planargraph;
 
 import org.tonerds.utilities.Pair;
 
-public final class PlanarDartEdge implements PlanarEdge{
+public class PlanarDartEdge<
+			Node extends PlanarNode<Node, PlanarDartEdge<Node, Face>, Face>, 
+			Face extends PlanarFace<Node, PlanarDartEdge<Node, Face>, Face>
+		> extends PlanarEdge<Node, PlanarDartEdge<Node, Face>, Face>{
 	
-	PlanarDirectedDart first, second;
+	PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> first, second;
+
+	private PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory;
+
 	
-	public PlanarDartEdge(PlanarDirectedDart first, PlanarDirectedDart second) {
+	PlanarDartEdge(PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory, 
+					PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> first, 
+					PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> second) {
+		this.factory = factory;
 		this.first = first;
 		this.second = second;
 	}
 	
-	public PlanarDartEdge(PlanarNode top, PlanarFace right, PlanarNode bottom, PlanarFace left) {
+	PlanarDartEdge(PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory, 
+					Node top, Face right, Node bottom, Face left) {
 		this(
-			new DefaultPlanarDirectedDart(top, bottom, left), 
-			new DefaultPlanarDirectedDart(bottom, top, right) ); 
+			factory,
+			factory.makeDart(bottom, top, right),
+			factory.makeDart(top, bottom, left)
+		); 
 	}
 	
 
 	@Override
-	public boolean containsNode(PlanarNode node) {
+	public boolean containsNode(Node node) {
 		return first.containsNode(node) && second.containsNode(node);
 	}
 	
 
 	@Override
-	public PlanarNode getNextNode(PlanarNode node) {
-		PlanarNode retnode = first.getNextNode(node);
+	public Node getNextNode(Node node) {
+		Node retnode = first.getNextNode(node);
 		if (retnode == null) {
 			retnode = second.getNextNode(node);
 		}
@@ -35,13 +47,13 @@ public final class PlanarDartEdge implements PlanarEdge{
 	
 
 	@Override
-	public boolean containsFace(PlanarFace face) {
+	public boolean containsFace(Face face) {
 		return first.containsFace(face) || second.containsFace(face);
 	}
 	
 	
 	@Override
-	public PlanarFace getNextFace(PlanarFace face) {
+	public Face getNextFace(Face face) {
 		if (first.containsFace(face)) {
 			return second.getFace();
 		}
@@ -52,36 +64,32 @@ public final class PlanarDartEdge implements PlanarEdge{
 	}
 
 	@Override
-	public PlanarFace getFace(PlanarNode from) {
-		PlanarFace ret = first.getFace(from);
+	public Face getFace(Node from) {
+		Face ret = first.getFace(from);
 		if (ret == null)
 			ret = second.getFace(from);
 		return ret;
 	}
 
 	@Override
-	public void replaceFace(PlanarNode top, PlanarNode bottom, PlanarFace rightfrom, PlanarFace rightto) {
-		PlanarDirectedDart olddart = new DefaultPlanarDirectedDart(bottom, top, rightfrom);
-		PlanarDirectedDart newdart = new DefaultPlanarDirectedDart(bottom, top, rightto);
+	void replaceFace(Node top, Node bottom, Face rightfrom, Face rightto) {
+		PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> olddart = factory.makeDart(bottom, top, rightfrom);
+		PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> newdart = factory.makeDart(bottom, top, rightto);
 		if (first.equals(olddart)) {
-			rightfrom.removeDart(first);
 			first = newdart;
 		}
 		if (second.equals(olddart)) {
-			rightfrom.removeDart(second);
 			second = newdart;
 		}
-		rightto.addEdge(this);
-			
 	}
 
 	@Override
-	public Pair<PlanarDirectedDart, PlanarDirectedDart> getDarts() {
+	public Pair<PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face>, PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face>> getDarts() {
 		return new Pair<>(first, second);
 	}
 
 	@Override
-	public Pair<PlanarNode, PlanarNode> getNodes() {
+	public Pair<Node, Node> getNodes() {
 		return new Pair<>(first.getBottom(), first.getTop());
 	}
 

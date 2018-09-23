@@ -2,21 +2,26 @@ package org.tonerds.graphframework.planargraph;
 
 import org.tonerds.utilities.Pair;
 
-public interface PlanarEdge {
+public abstract class PlanarEdge<
+			Node extends PlanarNode<Node, Edge, Face>, 
+			Edge extends PlanarEdge<Node, Edge, Face>, 
+			Face extends PlanarFace<Node, Edge, Face>
+		> {
 	
-	boolean containsNode(PlanarNode node);
+	//consider making this an abstract class. It could help greatly, if the methods used to change faces weren't visible
+	public abstract boolean containsNode(Node node);
 
-	PlanarNode getNextNode(PlanarNode node);
+	public abstract Node getNextNode(Node node);
 
-	boolean containsFace(PlanarFace face);
+	public abstract boolean containsFace(Face face);
 
-	PlanarFace getNextFace(PlanarFace face);
+	public abstract Face getNextFace(Face face);
 
-	PlanarFace getFace(PlanarNode from);
+	public abstract Face getFace(Node from);
 	
-	void replaceFace(PlanarNode top, PlanarNode bottom, PlanarFace rightfrom, PlanarFace rightto);
+	abstract void replaceFace(Node top, Node bottom, Face rightfrom, Face rightto);
 	
-	Pair<PlanarDirectedDart, PlanarDirectedDart> getDarts();
+	abstract Pair<PlanarDirectedDart<Node, Edge, Face>, PlanarDirectedDart<Node, Edge, Face>> getDarts();
 	
-	Pair<PlanarNode, PlanarNode> getNodes();
+	public abstract Pair<Node, Node> getNodes();
 }

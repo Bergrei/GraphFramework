@@ -6,27 +6,35 @@ import java.util.List;
 
 import org.tonerds.utilities.ModuloArithmetcs;
 
-public class DefaultPlanarNode implements PlanarNode {
+public class DefaultPlanarNode<
+			Edge extends PlanarEdge<DefaultPlanarNode<Edge, Face>, Edge, Face>, 
+			Face extends PlanarFace<DefaultPlanarNode<Edge, Face>, Edge, Face>
+		> implements PlanarNode<DefaultPlanarNode<Edge, Face>, Edge, Face> {
 
-	private List<PlanarEdge> edges = new ArrayList<>();
+	private List<Edge> edges = new ArrayList<>();
+	protected PlanarGraphFactory<DefaultPlanarNode<Edge, Face>, Edge, Face> factory;
+	
+	DefaultPlanarNode(PlanarGraphFactory<DefaultPlanarNode<Edge, Face>, Edge, Face> factory) {
+		this.factory = factory;
+	}
 	
 	@Override
-	public void addEdge(PlanarEdge edge) {
+	public void addEdge(Edge edge) {
 		edges.add(edge);
 	}
 
 	@Override
-	public boolean containsEdge(PlanarEdge edge) {
+	public boolean containsEdge(Edge edge) {
 		return edges.contains(edge);
 	}
 
 	@Override
-	public boolean removeEdge(PlanarEdge edge) {
+	public boolean removeEdge(Edge edge) {
 		return edges.remove(edge);
 	}
 
 	@Override
-	public PlanarEdge nextEdge(PlanarEdge edge) {
+	public Edge nextEdge(Edge edge) {
 		int index = edges.indexOf(edge);
 		if (index != -1) {
 			return edges.get(ModuloArithmetcs.add(index, 1, edges.size()));
@@ -35,8 +43,8 @@ public class DefaultPlanarNode implements PlanarNode {
 	}
 
 	@Override
-	public PlanarNode nextNode(PlanarFace face) {
-		for (PlanarEdge edge : edges) {
+	public DefaultPlanarNode<Edge, Face> nextNode(Face face) {
+		for (Edge edge : edges) {
 			if (edge.getFace(this) == face) {
 				return edge.getNextNode(this);
 			}
@@ -45,7 +53,7 @@ public class DefaultPlanarNode implements PlanarNode {
 	}
 
 	@Override
-	public Collection<PlanarEdge> getEdges() {
+	public Collection<Edge> getEdges() {
 		return new ArrayList<>(edges);
 	}
 

@@ -8,32 +8,42 @@ import java.util.Set;
 import org.tonerds.utilities.ModuloArithmetcs;
 import org.tonerds.utilities.Pair;
 
-public class DefaultPlanarFace implements PlanarFace {
+public class DefaultPlanarFace<
+			Node extends PlanarNode<Node, Edge, DefaultPlanarFace<Node, Edge>>, 
+			Edge extends PlanarEdge<Node, Edge, DefaultPlanarFace<Node, Edge>>
+		> implements PlanarFace<Node, Edge, DefaultPlanarFace<Node, Edge>> {
 
-	private Set<PlanarNode> nodes = new HashSet<>();
+	private Set<Node> nodes = new HashSet<>();
 	//hard to maintain
-	private List<List<PlanarDirectedDart>> circles = new ArrayList<>();
+	protected List<List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>>> circles = new ArrayList<>();
+	
+
+	private PlanarGraphFactory<Node, Edge, DefaultPlanarFace<Node, Edge>> factory;
+	
+	DefaultPlanarFace(PlanarGraphFactory<Node, Edge, DefaultPlanarFace<Node, Edge>> factory) {
+		this.factory = factory;
+	}
 	
 	@Override
-	public void addNode(PlanarNode node) {
+	public void addNode(Node node) {
 		nodes.add(node);
 		//circles.add(new ArrayList<>());
 	}
 
 	@Override
-	public boolean containsNode(PlanarNode node) {
+	public boolean containsNode(Node node) {
 		return nodes.contains(node);
 	}
 
 	@Override
-	public boolean removeNode(PlanarNode node) {
+	public boolean removeNode(Node node) {
 		return nodes.remove(node);
 	}
 
 
 	@Override
-	public void addEdge(PlanarEdge edge) {
-		Pair<PlanarNode, PlanarNode> edgenodes = edge.getNodes();
+	public DefaultPlanarFace<Node, Edge> addEdge(Edge edge) {
+		Pair<Node, Node> edgenodes = edge.getNodes();
 		int firstcircleid = findCircle(edgenodes.first);
 		if (firstcircleid == -1) {
 			firstcircleid = circles.size();
@@ -47,19 +57,21 @@ public class DefaultPlanarFace implements PlanarFace {
 		
 		if (firstcircleid != secondcircleid) {
 			mergeCirclesByEdge(firstcircleid, secondcircleid, edge);
+			return null;
 		}
 		else {
-			splitCircleByEdge(firstcircleid, edge);
+			return splitCircleByEdge(firstcircleid, edge);
 		}
 	}
+	
 
-	private void mergeCirclesByEdge(int firstcircleid, int secondcircleid, PlanarEdge edge) {
-		List<PlanarDirectedDart> firstcircle = circles.get(firstcircleid);
-		List<PlanarDirectedDart> secondcircle = circles.get(secondcircleid);
-		Pair<PlanarDirectedDart, PlanarDirectedDart> edgedarts = edge.getDarts();
-		Pair<PlanarNode, PlanarNode> edgenodes = edge.getNodes();
+	private void mergeCirclesByEdge(int firstcircleid, int secondcircleid, Edge edge) {
+		List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> firstcircle = circles.get(firstcircleid);
+		List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> secondcircle = circles.get(secondcircleid);
+		Pair<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>, PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> edgedarts = edge.getDarts();
+		Pair<Node, Node> edgenodes = edge.getNodes();
 		if (edgenodes.first != edgedarts.first.getBottom() && edgenodes.second != edgedarts.second.getBottom()) {
-			edgedarts = new Pair<PlanarDirectedDart, PlanarDirectedDart>(edgedarts.second, edgedarts.first);
+			edgedarts = new Pair<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>, PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>>(edgedarts.second, edgedarts.first);
 		}
 		
 		int firstnodeid = -1;
@@ -73,7 +85,7 @@ public class DefaultPlanarFace implements PlanarFace {
 			}
 		}
 		
-		List<PlanarDirectedDart> newcircle = new ArrayList<>();
+		List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> newcircle = new ArrayList<>();
 		int i = firstnodeid;
 		do {
 			newcircle.add(firstcircle.get(i));
@@ -93,10 +105,11 @@ public class DefaultPlanarFace implements PlanarFace {
 		circles.remove(secondcircleid);
 	}
 
-	private void splitCircleByEdge(int circleid, PlanarEdge edge) {
-		List<PlanarDirectedDart> circle = circles.get(circleid);
-		Pair<PlanarDirectedDart ,PlanarDirectedDart> edgedarts = edge.getDarts();
-		
+	private DefaultPlanarFace<Node, Edge> splitCircleByEdge(int circleid, Edge edge) {
+		List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle = circles.get(circleid);
+		Pair<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> ,PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> edgedarts = edge.getDarts();
+		//add face
+		DefaultPlanarFace<Node, Edge> newFace = factory.makeFace();
 		int firstnodeid = -1;
 		int secondnodeid = -1;
 		for (int i = 0; i < circle.size(); i++) {
@@ -107,23 +120,74 @@ public class DefaultPlanarFace implements PlanarFace {
 				secondnodeid = i;
 			}
 		}
-		int newcircleid = circles.size();
-		circles.add(new ArrayList<>());
-		List<PlanarDirectedDart> newcircle = circles.get(newcircleid);
+		List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> newcircle = new ArrayList<>();
 		for (int i = firstnodeid; i != secondnodeid; i = ModuloArithmetcs.add(i, 1, circle.size())) {
 			newcircle.add(circle.get(i));
 		}
 		newcircle.add(edgedarts.second);
 		circle.add(firstnodeid, edgedarts.first);
-		for (PlanarDirectedDart dart : newcircle) {
+		for (PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> dart : newcircle) {
 			circle.remove(dart);
 		}
+		newFace.addCircle(newcircle);
+		return newFace;
 	}
 
-	private int findCircle(PlanarNode node) {
+	@Override
+	public boolean containsDart(PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> dart) {
+		for (List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle : circles) {
+			if (circle.contains(dart)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean mergeByEdgeWithFace(Edge edge, DefaultPlanarFace<Node, Edge> face) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean removeEdge(Edge edge) {
+		if (containsEdge(edge)) {
+			int circleid = -1;
+			for (int i = 0; i < circles.size(); i++) {
+				if (circles.get(i).contains(edge.getDarts().first)) {
+					circleid = i;
+					break;
+				}
+			}
+			splitCircleByEdge(circleid, edge);
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> getNextDart(PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> after) {
+		for (List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle : circles) {
+			if (circle.contains(after)) {
+				return circle.get(ModuloArithmetcs.add(circle.indexOf(after), 1, circle.size()));
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public void addCircle(List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle) {
+		circles.add(circle);
+	}
+	
+	private void removeCircle(List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle) {
+		circles.remove(circle);
+	}
+	
+	private int findCircle(Node node) {
 		for (int i = 0; i < circles.size(); i++) {
-			List<PlanarDirectedDart> circle = circles.get(i);
-			for (PlanarDirectedDart dart : circle) {
+			List<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> circle = circles.get(i);
+			for (PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> dart : circle) {
 				if (dart.getBottom() == node) {
 					return i;
 				}
@@ -132,29 +196,9 @@ public class DefaultPlanarFace implements PlanarFace {
 		return 0;
 	}
 
-	@Override
-	public boolean containsDart(PlanarDirectedDart dart) {
-		for (List<PlanarDirectedDart> circle : circles) {
-			if (circle.contains(dart)) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
-	public boolean containsEdge(PlanarEdge edge) {
-		return containsDart(edge.getDarts().first) && containsDart(edge.getDarts().second);
+	public boolean containsEdge(Edge edge) {
+		Pair<PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>> ,PlanarDirectedDart<Node, Edge, DefaultPlanarFace<Node, Edge>>> darts = edge.getDarts();
+		return containsDart(darts.first) && containsDart(darts.second);
 	}
-
-	@Override
-	public PlanarDirectedDart getNextDart(PlanarDirectedDart after) {
-		for (List<PlanarDirectedDart> circle : circles) {
-			if (circle.contains(after)) {
-				return circle.get(ModuloArithmetcs.add(circle.indexOf(after), 1, circle.size()));
-			}
-		}
-		return null;
-	}
-
-
 }

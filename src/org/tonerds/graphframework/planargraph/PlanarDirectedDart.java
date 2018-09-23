@@ -1,24 +1,28 @@
 package org.tonerds.graphframework.planargraph;
 
-public interface PlanarDirectedDart {
+public interface PlanarDirectedDart<
+			Node extends PlanarNode<Node, Edge, Face>,
+			Edge extends PlanarEdge<Node, Edge, Face>,
+			Face extends PlanarFace<Node, Edge, Face>
+		> {
 	
-	public boolean containsNode(PlanarNode node);
+	public boolean containsNode(Node node);
 	
-	public PlanarNode getNextNode(PlanarNode node);
+	public Node getNextNode(Node node);
 	
-	public boolean containsFace(PlanarFace face);
+	public boolean containsFace(Face face);
 	
-	public PlanarFace getFace();
+	public Face getFace();
 	
-	public PlanarFace getFace(PlanarNode from);
+	public Face getFace(Node from);
 	
-	public boolean hasSameNodes(PlanarDirectedDart dart);
+	public boolean hasSameNodes(PlanarDirectedDart<Node, Edge, Face> dart);
 	
-	public boolean equals(PlanarDirectedDart dart);
+	public boolean equals(PlanarDirectedDart<Node, Edge, Face> dart);
 	
-	PlanarNode getTop();
-	PlanarNode getBottom();
-	PlanarFace getRight();
+	Node getTop();
+	Node getBottom();
+	Face getRight();
 	
-	void replaceFace(PlanarFace oldface, PlanarFace newface);
+	boolean replaceFace(Face oldface, Face newface);
 }
