@@ -2,25 +2,25 @@ package org.tonerds.graphframework.planargraph;
 
 import org.tonerds.utilities.Pair;
 
-public class PlanarDartEdge<
-			Node extends PlanarNode<Node, PlanarDartEdge<Node, Face>, Face>, 
-			Face extends PlanarFace<Node, PlanarDartEdge<Node, Face>, Face>
-		> extends PlanarEdge<Node, PlanarDartEdge<Node, Face>, Face>{
+public class DefaultPlanarEdge<
+			Node extends PlanarNode<Node, DefaultPlanarEdge<Node, Face>, Face>, 
+			Face extends PlanarFace<Node, DefaultPlanarEdge<Node, Face>, Face>
+		> extends PlanarEdge<Node, DefaultPlanarEdge<Node, Face>, Face>{
 	
-	PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> first, second;
+	PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face> first, second;
 
-	private PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory;
+	private PlanarGraphFactory<Node, DefaultPlanarEdge<Node, Face>, Face> factory;
 
 	
-	PlanarDartEdge(PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory, 
-					PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> first, 
-					PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> second) {
+	DefaultPlanarEdge(PlanarGraphFactory<Node, DefaultPlanarEdge<Node, Face>, Face> factory, 
+					PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face> first, 
+					PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face> second) {
 		this.factory = factory;
 		this.first = first;
 		this.second = second;
 	}
 	
-	PlanarDartEdge(PlanarGraphFactory<Node, PlanarDartEdge<Node, Face>, Face> factory, 
+	DefaultPlanarEdge(PlanarGraphFactory<Node, DefaultPlanarEdge<Node, Face>, Face> factory, 
 					Node top, Face right, Node bottom, Face left) {
 		this(
 			factory,
@@ -73,8 +73,8 @@ public class PlanarDartEdge<
 
 	@Override
 	void replaceFace(Node top, Node bottom, Face rightfrom, Face rightto) {
-		PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> olddart = factory.makeDart(bottom, top, rightfrom);
-		PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face> newdart = factory.makeDart(bottom, top, rightto);
+		PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face> olddart = factory.makeDart(bottom, top, rightfrom);
+		PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face> newdart = factory.makeDart(bottom, top, rightto);
 		if (first.equals(olddart)) {
 			first = newdart;
 		}
@@ -84,7 +84,7 @@ public class PlanarDartEdge<
 	}
 
 	@Override
-	public Pair<PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face>, PlanarDirectedDart<Node, PlanarDartEdge<Node, Face>, Face>> getDarts() {
+	public Pair<PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face>, PlanarDirectedDart<Node, DefaultPlanarEdge<Node, Face>, Face>> getDarts() {
 		return new Pair<>(first, second);
 	}
 
